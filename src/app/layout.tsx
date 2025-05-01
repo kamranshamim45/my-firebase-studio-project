@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark"> {/* Apply dark theme globally */}
+    <html lang="en" className="dark">{/* Apply dark theme globally */}
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
         <Toaster /> {/* Add Toaster here */}
