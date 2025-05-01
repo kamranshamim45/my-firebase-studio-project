@@ -1,11 +1,12 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import * as RadixIcons from "@radix-ui/react-icons"; // Import Radix Icons
 
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_[data-radix-icon]]:pointer-events-none [&_[data-radix-icon]]:size-4 [&_[data-radix-icon]]:shrink-0", // Adjusted selector for Radix Icons
   {
     variants: {
       variant: {
@@ -33,6 +34,9 @@ const buttonVariants = cva(
   }
 )
 
+// Add Radix icons to the exports for convenience
+export const Icons = RadixIcons;
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
@@ -42,12 +46,24 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    // Add data-radix-icon attribute to children if they are Radix Icons
+     const childrenWithIconAttr = React.Children.map(props.children, (child) => {
+      if (React.isValidElement(child) && typeof child.type !== 'string' && (child.type as any).displayName?.includes('Icon')) {
+         // Check if the component looks like a Radix icon (better checks might be needed)
+         // This is a heuristic check; it might not be perfectly robust
+        return React.cloneElement(child, { 'data-radix-icon': 'true', className: cn(child.props.className) });
+      }
+      return child;
+    });
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}
-      />
+      >
+        {childrenWithIconAttr}
+        </Comp>
     )
   }
 )
